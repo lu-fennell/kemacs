@@ -1,0 +1,2 @@
+# kemacs
+Emacsclient for KWIN.

@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_FILE=$HOME/.cache/kemacs-show-window.js
+
+cat > $SCRIPT_FILE <<EOF
+function show(client) {
+    client.desktop = workspace.currentDesktop;
+    client.minimized = false;
+    workspace.activeClient = client;
+    client.keepAbove       = false;
+}
+
+function findFirstTarget(targetName) {
+    var clients = workspace.clientList();
+    for (var i=0; i<clients.length; i++) {
+	      var client = clients[i];
+	      if(client.resourceName == targetName) {
+	          return client;
+	      }
+    }
+};
+
+function TargetClient(targetName) {
+    this.id = 'Resource:' + targetName;
+    this.cashedClient = findFirstTarget(targetName);
+    this.get = function () {
+	      return findFirstTarget(targetName);
+    };
+}
+
+function withTarget(target, cont) {
+    var c = target.get();
+    if (c) {
+	      cont(c);
+    } else {
+	      print('No client found for target ' + target.id);
+    }
+}
+
+
+var emacs = new TargetClient('emacs');
+
+withTarget(emacs, show);
+EOF
+
+SCRIPT_ID=`qdbus org.kde.KWin /Scripting loadScript $SCRIPT_FILE`
+qdbus org.kde.KWin /$SCRIPT_ID run
+
+# now the window is activated, if there is any.. we can run emacsclient
+
+# first make sure the server is started, and check for the current frame type (terminal or graphical)
+FRAME_TYPE=`emacsclient -a= -e '(framep (selected-frame))'`
+
+if [[ $FRAME_TYPE = x ]]; then
+    # we already have a graphical frame
+    emacsclient -n -a= "$@"
+else
+    # we must create a frame
+    emacsclient -nc -a= "$@"
+fi
+
+
+
+

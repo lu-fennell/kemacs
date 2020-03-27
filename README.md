@@ -17,7 +17,7 @@ And I want this behavior.
 
 ## Installation
 
-Put `kemacs` into `$HOME/.local/bin` and `kemacs.desktop` into
-`$HOME/.local/share/applications`. Now you should be able to start a `Kemacs`
+Put `kemacs` somewhere into your PATH (as KDE does see it) and `kemacs.desktop` into
+`$HOME/.local/share/applications`. Now you should be able to start a `KEmacs`
 application from your launcher as well as configure it as default application
 for text file types.
